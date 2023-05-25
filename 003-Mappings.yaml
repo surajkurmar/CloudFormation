@@ -34,5 +34,5 @@ Resources:
         - !Ref PrashantDeptParameter
         - InstanceType
       KeyName: !Ref PrashantKey
-      SecurityGroup:
+      SecurityGroups:
         - Default
