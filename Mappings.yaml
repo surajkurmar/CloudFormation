@@ -1,0 +1,38 @@
+Parameters:
+  PrashantKey:
+    Type: AWS::EC2::KeyPair::KeyName
+  PrashantDeptParameter:
+    Type: String
+    Default: Developer
+    AllowedValues:
+      - Developer
+      - Production
+
+Mappings:
+  PrashantAMIIdMapping:
+    us-east-1:
+      PrashantAMI: ami-0715c1897453cabd1
+    ap-south-1:
+      PrashantAMI: ami-0607784b46cbe5816
+  PrashantInstaceTypeMapping:
+    Developer: 
+      InstanceType: t2.micro
+    Production:
+      InstanceType: t2.small
+
+
+Resources:
+  PrashantEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap
+        - PrashantAMIIdMapping
+        - !Ref 'AWS::Region'
+        - PrashantAMI
+      InstanceType: !FindInMap
+        - PrashantInstaceTypeMapping
+        - !Ref PrashantDeptParameter
+        - InstanceType
+      KeyName: !Ref PrashantKey
+      SecurityGroup:
+        - Default
