@@ -41,27 +41,27 @@ Resources:
         - !Ref PrashantDeptParameter
         - InstanceType
       KeyName: !Ref PrashantKey
-      SecurityGroup: !If [Dept_SG_Dev,[!Ref DevloperSG], [!Ref ProductionSG]]
+      SecurityGroups: !If [Dept_SG_Dev,[!Ref DevloperSG], [!Ref ProductionSG]]
         
 
-  DevloperSG:
+    DevloperSG:
     Type: AWS::EC2::SecurityGroup
     Condition: Dept_SG_Dev
     Properties:
-      SecurityGroupDescription: Developer SG
+      GroupDescription: DevSG
       SecurityGroupIngress: 
-        IpProtocol: ssh
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: ssh
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
 
   ProductionSG: 
     Type: AWS::EC2::SecurityGroup
     Condition: Dept_SG_Prod
     Properties:
-      SecurityGroupDescription: Production SG
+      GroupDescription: ProdSG
       SecurityGroupIngress: 
-        IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
