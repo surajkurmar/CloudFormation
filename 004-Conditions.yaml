@@ -1,1 +1,67 @@
+# Create EC2 Instances for production & Developer Dept, Create SG for Respective Dept 
+# & Attach the SG Automatically with help of Condition.
 
+Parameters:
+  PrashantKey:
+    Type: AWS::EC2::KeyPair::KeyName
+  PrashantDeptParameter:
+    Type: String
+    Default: Developer
+    AllowedValues:
+      - Developer
+      - Production
+
+Mappings:
+  PrashantAMIIdMapping:
+    us-east-1:
+      PrashantAMI: ami-0715c1897453cabd1
+    ap-south-1:
+      PrashantAMI: ami-0607784b46cbe5816
+  PrashantInstaceTypeMapping:
+    Developer: 
+      InstanceType: t2.micro
+    Production:
+      InstanceType: t2.small
+
+Conditions:
+  Dept_SG_Dev: !Equals [!Ref PrashantDeptParameter, Developer]
+  Dept_SG_Prod: !Equals [!Ref PrashantDeptParameter, Production]
+  
+ 
+Resources:
+  PrashantEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap
+        - PrashantAMIIdMapping
+        - !Ref 'AWS::Region'
+        - PrashantAMI
+      InstanceType: !FindInMap
+        - PrashantInstaceTypeMapping
+        - !Ref PrashantDeptParameter
+        - InstanceType
+      KeyName: !Ref PrashantKey
+      SecurityGroup: !If [Dept_SG_Dev,[!Ref DevloperSG], [!Ref ProductionSG]]
+        
+
+  DevloperSG:
+    Type: AWS::EC2::SecurityGroup
+    Condition: Dept_SG_Dev
+    Properties:
+      SecurityGroupDescription: Developer SG
+      SecurityGroupIngress: 
+        IpProtocol: ssh
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
+  ProductionSG: 
+    Type: AWS::EC2::SecurityGroup
+    Condition: Dept_SG_Prod
+    Properties:
+      SecurityGroupDescription: Production SG
+      SecurityGroupIngress: 
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
